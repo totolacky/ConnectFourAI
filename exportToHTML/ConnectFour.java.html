@@ -1,0 +1,510 @@
+<html>
+<head>
+<title>ConnectFour.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(104,151,187); }
+.s3 { color: rgb(128,128,128); }
+.s4 { color: rgb(106,135,89); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+ConnectFour.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">import </span><span class="s1">java.util.ArrayList</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.util.Scanner</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.Frame</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.Panel</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.Color</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.event.WindowAdapter</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.event.WindowEvent</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.event.ActionEvent</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">java.awt.event.ActionListener</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">javax.swing.ImageIcon</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s0">import </span><span class="s1">javax.swing.JButton</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">Util { 
+    </span><span class="s0">static int</span><span class="s1">[][] intDeepCopy(</span><span class="s0">int</span><span class="s1">[][] a){ 
+        </span><span class="s0">int </span><span class="s1">len = a.length</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">wid = a[</span><span class="s2">0</span><span class="s1">].length</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int</span><span class="s1">[][] b = </span><span class="s0">new int</span><span class="s1">[len][wid]</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;len</span><span class="s0">; </span><span class="s1">i++){ 
+            </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;wid</span><span class="s0">; </span><span class="s1">j++){ 
+                b[i][j] = a[i][j]</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+        </span><span class="s0">return </span><span class="s1">b</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// A deepcopy method for a 2D-int array</span><span class="s1"> 
+    </span><span class="s0">static int </span><span class="s1">randomPick(ArrayList&lt;Integer&gt; a){ 
+        </span><span class="s0">int </span><span class="s1">rand = (</span><span class="s0">int</span><span class="s1">)(Math.random()*a.size())</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">a.get(rand)</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Randomly picks an object from integer Arraylist</span><span class="s1"> 
+}   </span><span class="s3">// A class with some static utilities</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">tmpVariables { 
+    </span><span class="s0">static boolean </span><span class="s1">clicked = </span><span class="s0">false;</span><span class="s1"> 
+    </span><span class="s0">static int </span><span class="s1">actionTaken = -</span><span class="s2">1</span><span class="s0">;</span><span class="s1"> 
+}   </span><span class="s3">// Variables needed for GraphicsPlayer</span><span class="s1"> 
+ 
+</span><span class="s0">abstract class </span><span class="s1">GUI </span><span class="s0">extends </span><span class="s1">Frame{ 
+    </span><span class="s0">abstract void </span><span class="s1">showChange(Board board)</span><span class="s0">;      </span><span class="s3">// Displays the action that a player took</span><span class="s1"> 
+    </span><span class="s0">abstract void </span><span class="s1">gameOverMessage(Board board)</span><span class="s0">; </span><span class="s3">// Displays the game over message</span><span class="s1"> 
+}   </span><span class="s3">// Decides which way the game would be presented</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">console </span><span class="s0">extends </span><span class="s1">GUI{ 
+    </span><span class="s0">void </span><span class="s1">showChange(Board board){ 
+        board.printBoard()</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">void </span><span class="s1">gameOverMessage(Board board){ 
+        System.out.print(</span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">Game Over! &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">if</span><span class="s1">(board.whoWon()==</span><span class="s2">1</span><span class="s1">){System.out.print(</span><span class="s4">&quot;Black Wins!&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">if</span><span class="s1">(board.whoWon()==</span><span class="s2">2</span><span class="s1">){System.out.print(</span><span class="s4">&quot;White Wins!&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">if</span><span class="s1">(board.whoWon()==</span><span class="s2">3</span><span class="s1">){System.out.print(</span><span class="s4">&quot;Nobody Wins!&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1">} 
+    }   </span><span class="s3">// Prints the game over message</span><span class="s1"> 
+} 
+ 
+</span><span class="s0">class </span><span class="s1">Graphics </span><span class="s0">extends </span><span class="s1">GUI{ 
+ 
+    </span><span class="s0">private final int </span><span class="s1">fw = </span><span class="s2">980</span><span class="s0">, </span><span class="s1">fh = </span><span class="s2">950</span><span class="s0">;               </span><span class="s3">// Set frame size</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">JButton position[][] = </span><span class="s0">new </span><span class="s1">JButton[</span><span class="s2">6</span><span class="s1">][</span><span class="s2">7</span><span class="s1">]</span><span class="s0">;   </span><span class="s3">// Save each position as a JButton</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">JButton action[] = </span><span class="s0">new </span><span class="s1">JButton[</span><span class="s2">7</span><span class="s1">]</span><span class="s0">;          </span><span class="s3">// Jbuttons to indicate where to press</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">ImageIcon[] icon = </span><span class="s0">new </span><span class="s1">ImageIcon[</span><span class="s2">4</span><span class="s1">]</span><span class="s0">;        </span><span class="s3">// Save images</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Panel p</span><span class="s0">;                                    </span><span class="s3">// The panel where game is going on</span><span class="s1"> 
+ 
+    </span><span class="s0">private </span><span class="s1">Color C0 = </span><span class="s0">new </span><span class="s1">Color(</span><span class="s2">66</span><span class="s0">, </span><span class="s2">33</span><span class="s0">, </span><span class="s2">0</span><span class="s1">)</span><span class="s0">;        </span><span class="s3">// Board Color</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Color C1 = </span><span class="s0">new </span><span class="s1">Color(</span><span class="s2">132</span><span class="s0">, </span><span class="s2">60</span><span class="s0">, </span><span class="s2">12</span><span class="s1">)</span><span class="s0">;    </span><span class="s3">// Background Color</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Color C2 = </span><span class="s0">new </span><span class="s1">Color(</span><span class="s2">100</span><span class="s0">, </span><span class="s2">50</span><span class="s0">, </span><span class="s2">0</span><span class="s1">)</span><span class="s0">;       </span><span class="s3">// Color 2</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Color cSel = </span><span class="s0">new </span><span class="s1">Color(</span><span class="s2">190</span><span class="s0">,</span><span class="s2">190</span><span class="s0">,</span><span class="s2">0</span><span class="s1">)</span><span class="s0">;      </span><span class="s3">// Color 3</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Color cPSel = </span><span class="s0">new </span><span class="s1">Color(</span><span class="s2">0</span><span class="s0">,</span><span class="s2">140</span><span class="s0">,</span><span class="s2">140</span><span class="s1">)</span><span class="s0">;     </span><span class="s3">// Color 4</span><span class="s1"> 
+ 
+    Graphics(){ 
+        makeGraphics()</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">void </span><span class="s1">makeGraphics(){ 
+        setSize(fw+</span><span class="s2">10</span><span class="s0">, </span><span class="s1">fh+</span><span class="s2">90</span><span class="s1">)</span><span class="s0">;        </span><span class="s3">// Frame의 크기 설정</span><span class="s1"> 
+        setBackground(C1)</span><span class="s0">;</span><span class="s1"> 
+ 
+        p = </span><span class="s0">new </span><span class="s1">Panel()</span><span class="s0">;</span><span class="s1"> 
+        add(p)</span><span class="s0">;                </span><span class="s3">// Frame에 p 추가</span><span class="s1"> 
+        p.setLayout(</span><span class="s0">null</span><span class="s1">)</span><span class="s0">;     </span><span class="s3">// BorderLayout과 같이 특별한 형태가 아닌, 레이아웃 사용</span><span class="s1"> 
+        p.setBackground(C1)</span><span class="s0">;</span><span class="s1"> 
+ 
+        setIcons()</span><span class="s0">;</span><span class="s1"> 
+        makeBoard()</span><span class="s0">;</span><span class="s1"> 
+ 
+        setVisible(</span><span class="s0">true</span><span class="s1">)</span><span class="s0">; </span><span class="s3">// 보이기</span><span class="s1"> 
+ 
+        addWindowListener(</span><span class="s0">new </span><span class="s1">MyWindowAdapter())</span><span class="s0">; </span><span class="s3">// 윈도 창닫기 버튼 활성화</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">void </span><span class="s1">makeBoard(){ 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;</span><span class="s2">6</span><span class="s0">; </span><span class="s1">i++) {             </span><span class="s3">// 칸을 row행 생성</span><span class="s1"> 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s2">0</span><span class="s0">; </span><span class="s1">j &lt; </span><span class="s2">7</span><span class="s0">; </span><span class="s1">j++) {         </span><span class="s3">// 칸을 col열 생성</span><span class="s1"> 
+                position[i][j] = </span><span class="s0">new </span><span class="s1">JButton(icon[</span><span class="s2">0</span><span class="s1">])</span><span class="s0">;</span><span class="s1"> 
+                position[i][j].setDisabledIcon(icon[</span><span class="s2">0</span><span class="s1">])</span><span class="s0">;</span><span class="s1"> 
+                position[i][j].setBackground(C0)</span><span class="s0">;</span><span class="s1"> 
+                position[i][j].setSize(</span><span class="s2">130</span><span class="s0">, </span><span class="s2">130</span><span class="s1">)</span><span class="s0">;      </span><span class="s3">// 칸 크기는 10 X 10</span><span class="s1"> 
+                position[i][j].setLocation(</span><span class="s2">30</span><span class="s1">+ j * </span><span class="s2">130</span><span class="s0">, </span><span class="s2">810 </span><span class="s1">- i * </span><span class="s2">130</span><span class="s1">)</span><span class="s0">; </span><span class="s3">// 칸 위치를 연산해서 넣기</span><span class="s1"> 
+                position[i][j].setBorderPainted(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                position[i][j].setEnabled(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                p.add(position[i][j])</span><span class="s0">;    </span><span class="s3">// p Panel에 칸 추가</span><span class="s1"> 
+            } 
+        } 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;</span><span class="s2">7</span><span class="s0">; </span><span class="s1">i++){ 
+            action[i] = </span><span class="s0">new </span><span class="s1">JButton(icon[</span><span class="s2">3</span><span class="s1">])</span><span class="s0">;</span><span class="s1"> 
+            action[i].setSize(</span><span class="s2">130</span><span class="s0">,</span><span class="s2">130</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            action[i].setBackground(C1)</span><span class="s0">;</span><span class="s1"> 
+            action[i].setLocation(</span><span class="s2">30</span><span class="s1">+i*</span><span class="s2">130</span><span class="s0">,</span><span class="s2">30</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            action[i].setFocusPainted(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            action[i].setBorderPainted(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            action[i].setRolloverEnabled(</span><span class="s0">false</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            p.add(action[i])</span><span class="s0">;</span><span class="s1"> 
+            action[i].addActionListener(</span><span class="s0">new </span><span class="s1">ClickedListener(i))</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+ 
+    </span><span class="s0">void </span><span class="s1">setIcons(){ 
+        icon[</span><span class="s2">0</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s4">&quot;pic/empty TP.png&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        icon[</span><span class="s2">1</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s4">&quot;pic/black TP.png&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        icon[</span><span class="s2">2</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s4">&quot;pic/white TP.png&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        icon[</span><span class="s2">3</span><span class="s1">] = </span><span class="s0">new </span><span class="s1">ImageIcon(</span><span class="s4">&quot;pic/arrow TP.png&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">class </span><span class="s1">MyWindowAdapter </span><span class="s0">extends </span><span class="s1">WindowAdapter { </span><span class="s3">// x눌러 윈도 창닫기</span><span class="s1"> 
+        </span><span class="s0">public void </span><span class="s1">windowClosing(WindowEvent e) { 
+            System.exit(</span><span class="s2">0</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } 
+    }   </span><span class="s3">// Used so that the window X button works</span><span class="s1"> 
+ 
+    </span><span class="s0">class </span><span class="s1">ClickedListener </span><span class="s0">implements </span><span class="s1">ActionListener { 
+        </span><span class="s0">private int </span><span class="s1">num</span><span class="s0">; </span><span class="s3">// Saves which row and column it is</span><span class="s1"> 
+ 
+        </span><span class="s3">// Save value using constructor</span><span class="s1"> 
+        ClickedListener(</span><span class="s0">int </span><span class="s1">num) { 
+            </span><span class="s0">this</span><span class="s1">.num = num</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        </span><span class="s3">// Method that runs when clicked</span><span class="s1"> 
+        @Override 
+        </span><span class="s0">public void </span><span class="s1">actionPerformed(ActionEvent e) { 
+            tmpVariables.actionTaken = num</span><span class="s0">;</span><span class="s1"> 
+            tmpVariables.clicked = </span><span class="s0">true;</span><span class="s1"> 
+        } 
+    }   </span><span class="s3">//</span><span class="s1"> 
+ 
+    </span><span class="s0">void </span><span class="s1">showChange(Board board){ 
+        </span><span class="s0">int</span><span class="s1">[][] cb = board.getCB()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;cb.length</span><span class="s0">; </span><span class="s1">i++){ 
+            </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;cb[</span><span class="s2">0</span><span class="s1">].length</span><span class="s0">; </span><span class="s1">j++){ 
+                position[i][j].setDisabledIcon(icon[cb[i][j]])</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+    } 
+ 
+    </span><span class="s0">void </span><span class="s1">gameOverMessage(Board board){ 
+        System.out.print(</span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">Game Over! &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">if</span><span class="s1">(board.whoWon()==</span><span class="s2">1</span><span class="s1">){System.out.print(</span><span class="s4">&quot;Black Wins!&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">if</span><span class="s1">(board.whoWon()==</span><span class="s2">2</span><span class="s1">){System.out.print(</span><span class="s4">&quot;White Wins!&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">if</span><span class="s1">(board.whoWon()==</span><span class="s2">3</span><span class="s1">){System.out.print(</span><span class="s4">&quot;Nobody Wins!&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1">} 
+    }   </span><span class="s3">// Prints the game over message</span><span class="s1"> 
+} 
+ 
+</span><span class="s0">class </span><span class="s1">NoGUI </span><span class="s0">extends </span><span class="s1">GUI{ 
+    </span><span class="s0">void </span><span class="s1">showChange(Board board){} 
+    </span><span class="s0">void </span><span class="s1">gameOverMessage(Board board){} 
+} 
+ 
+</span><span class="s0">class </span><span class="s1">Board { 
+ 
+    </span><span class="s0">private int </span><span class="s1">player</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private int</span><span class="s1">[][] cb = </span><span class="s0">new int</span><span class="s1">[</span><span class="s2">6</span><span class="s1">][</span><span class="s2">7</span><span class="s1">]</span><span class="s0">; </span><span class="s3">// Current Board. Left bottom is [0][0] (just like in coordinates)</span><span class="s1"> 
+ 
+    Board(){ 
+        initBoard()</span><span class="s0">;</span><span class="s1"> 
+        player=</span><span class="s2">1</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Starts by initializing the board. 0 is empty, 1 is black, 2 is white</span><span class="s1"> 
+ 
+    Board(</span><span class="s0">int</span><span class="s1">[][] init</span><span class="s0">, int </span><span class="s1">pl){ 
+        cb = Util.intDeepCopy(init)</span><span class="s0">;</span><span class="s1"> 
+        player=pl</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Starts by assigning certain conformation of the board and current player</span><span class="s1"> 
+ 
+    </span><span class="s0">int </span><span class="s1">whoWon(){ 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;</span><span class="s2">6</span><span class="s0">; </span><span class="s1">i++){ 
+            </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;</span><span class="s2">7</span><span class="s0">; </span><span class="s1">j++){ 
+                </span><span class="s0">if</span><span class="s1">(cb[i][j]==</span><span class="s2">0</span><span class="s1">){</span><span class="s0">continue;</span><span class="s1">} 
+                </span><span class="s0">if</span><span class="s1">(i&lt;=</span><span class="s2">2 </span><span class="s1">&amp;&amp; cb[i][j]==cb[i+</span><span class="s2">1</span><span class="s1">][j] &amp;&amp; cb[i][j]==cb[i+</span><span class="s2">2</span><span class="s1">][j] &amp;&amp; cb[i][j]==cb[i+</span><span class="s2">3</span><span class="s1">][j]) {</span><span class="s0">return </span><span class="s1">cb[i][j]</span><span class="s0">;</span><span class="s1">} 
+                </span><span class="s0">if</span><span class="s1">(j&lt;=</span><span class="s2">3 </span><span class="s1">&amp;&amp; cb[i][j]==cb[i][j+</span><span class="s2">1</span><span class="s1">] &amp;&amp; cb[i][j]==cb[i][j+</span><span class="s2">2</span><span class="s1">] &amp;&amp; cb[i][j]==cb[i][j+</span><span class="s2">3</span><span class="s1">]) {</span><span class="s0">return </span><span class="s1">cb[i][j]</span><span class="s0">;</span><span class="s1">} 
+                </span><span class="s0">if</span><span class="s1">(i&lt;=</span><span class="s2">2 </span><span class="s1">&amp;&amp; j&lt;=</span><span class="s2">3 </span><span class="s1">&amp;&amp; cb[i][j]==cb[i+</span><span class="s2">1</span><span class="s1">][j+</span><span class="s2">1</span><span class="s1">] &amp;&amp; cb[i][j]==cb[i+</span><span class="s2">2</span><span class="s1">][j+</span><span class="s2">2</span><span class="s1">] &amp;&amp; cb[i][j]==cb[i+</span><span class="s2">3</span><span class="s1">][j+</span><span class="s2">3</span><span class="s1">]) {</span><span class="s0">return </span><span class="s1">cb[i][j]</span><span class="s0">;</span><span class="s1">} 
+                </span><span class="s0">if</span><span class="s1">(i&gt;=</span><span class="s2">3 </span><span class="s1">&amp;&amp; cb[i][j]==cb[i-</span><span class="s2">1</span><span class="s1">][j] &amp;&amp; cb[i][j]==cb[i-</span><span class="s2">2</span><span class="s1">][j] &amp;&amp; cb[i][j]==cb[i-</span><span class="s2">3</span><span class="s1">][j]) {</span><span class="s0">return </span><span class="s1">cb[i][j]</span><span class="s0">;</span><span class="s1">} 
+                </span><span class="s0">if</span><span class="s1">(i&gt;=</span><span class="s2">3 </span><span class="s1">&amp;&amp; j&lt;=</span><span class="s2">3 </span><span class="s1">&amp;&amp; cb[i][j]==cb[i-</span><span class="s2">1</span><span class="s1">][j+</span><span class="s2">1</span><span class="s1">] &amp;&amp; cb[i][j]==cb[i-</span><span class="s2">2</span><span class="s1">][j+</span><span class="s2">2</span><span class="s1">] &amp;&amp; cb[i][j]==cb[i-</span><span class="s2">3</span><span class="s1">][j+</span><span class="s2">3</span><span class="s1">]) {</span><span class="s0">return </span><span class="s1">cb[i][j]</span><span class="s0">;</span><span class="s1">} 
+            } 
+        } 
+        </span><span class="s0">if</span><span class="s1">(posActions().size()==</span><span class="s2">0</span><span class="s1">){</span><span class="s0">return </span><span class="s2">3</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">return </span><span class="s2">0</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Returns 0 if game is not over. Returns the winner player number otherwise.</span><span class="s1"> 
+ 
+    ArrayList&lt;Integer&gt; posActions(){ 
+        ArrayList&lt;Integer&gt; pa = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;</span><span class="s2">7</span><span class="s0">; </span><span class="s1">j++){ 
+            </span><span class="s0">if</span><span class="s1">(cb[</span><span class="s2">5</span><span class="s1">][j]==</span><span class="s2">0</span><span class="s1">){ pa.add(j)</span><span class="s0">;</span><span class="s1">} 
+        } 
+        </span><span class="s0">return </span><span class="s1">pa</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Returns the Arraylist containing x-coord of all non-full columns. Is arranged in order.</span><span class="s1"> 
+ 
+    </span><span class="s0">boolean </span><span class="s1">isPosMove(</span><span class="s0">int </span><span class="s1">action){ 
+        </span><span class="s0">if</span><span class="s1">(cb[</span><span class="s2">5</span><span class="s1">][action]==</span><span class="s2">0</span><span class="s1">){</span><span class="s0">return true;</span><span class="s1">} 
+        </span><span class="s0">else</span><span class="s1">{</span><span class="s0">return false;</span><span class="s1">} 
+    }   </span><span class="s3">// Checks if the given move is possible</span><span class="s1"> 
+ 
+    Board createSuccessorBoard(</span><span class="s0">int </span><span class="s1">action){ 
+        </span><span class="s0">if</span><span class="s1">(action&lt;</span><span class="s2">0</span><span class="s1">||action&gt;</span><span class="s2">6</span><span class="s1">||cb[</span><span class="s2">5</span><span class="s1">][action]!=</span><span class="s2">0</span><span class="s1">){System.out.println(</span><span class="s4">&quot;ERROR!!!!!!&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">int</span><span class="s1">[][] newCB = Util.intDeepCopy(cb)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">;</span><span class="s1">i&lt;</span><span class="s2">6</span><span class="s0">; </span><span class="s1">i++){ 
+            </span><span class="s0">if</span><span class="s1">(newCB[i][action]==</span><span class="s2">0</span><span class="s1">){ 
+                newCB[i][action]=player</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">break;</span><span class="s1"> 
+            } 
+        } 
+        Board sucBoard = </span><span class="s0">new </span><span class="s1">Board(newCB</span><span class="s0">, </span><span class="s1">player)</span><span class="s0">;</span><span class="s1"> 
+        sucBoard.switchPlayer()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">sucBoard</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Returns the successor board of an action(colunm #) taken by current player.</span><span class="s1"> 
+ 
+    </span><span class="s0">private void </span><span class="s1">initBoard(){ 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;</span><span class="s2">6</span><span class="s0">; </span><span class="s1">i++){ 
+            </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;</span><span class="s2">7</span><span class="s0">; </span><span class="s1">j++){ 
+                cb[i][j]=</span><span class="s2">0</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+    }   </span><span class="s3">// Empties the board</span><span class="s1"> 
+ 
+    </span><span class="s0">void </span><span class="s1">printBoard(){ 
+        System.out.println(</span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">0 1 2 3 4 5 6</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">5</span><span class="s0">; </span><span class="s1">i&gt;=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i--){ 
+            </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;</span><span class="s2">7</span><span class="s0">; </span><span class="s1">j++){ 
+                System.out.print(cb[i][j])</span><span class="s0">;</span><span class="s1"> 
+                System.out.print(</span><span class="s4">&quot; &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            } 
+            System.out.println()</span><span class="s0">;</span><span class="s1"> 
+        } 
+    }   </span><span class="s3">// Prints the current board</span><span class="s1"> 
+ 
+    </span><span class="s0">void </span><span class="s1">switchPlayer(){ 
+        </span><span class="s0">if</span><span class="s1">(player==</span><span class="s2">1</span><span class="s1">) {player=</span><span class="s2">2</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">else </span><span class="s1">{player=</span><span class="s2">1</span><span class="s0">;</span><span class="s1">} 
+    }   </span><span class="s3">// Switches player</span><span class="s1"> 
+ 
+    </span><span class="s0">int </span><span class="s1">getPlayer() {</span><span class="s0">return </span><span class="s1">player</span><span class="s0">;</span><span class="s1">} 
+ 
+    </span><span class="s0">int</span><span class="s1">[][] getCB(){ 
+        </span><span class="s0">return </span><span class="s1">cb</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+}   </span><span class="s3">// Similar to the GameState class</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">Game { 
+ 
+    Board board</span><span class="s0">;        </span><span class="s3">// The Board object representing the current board state</span><span class="s1"> 
+    </span><span class="s0">int </span><span class="s1">winner</span><span class="s0">;         </span><span class="s3">// Indicates who the winner is</span><span class="s1"> 
+    </span><span class="s0">boolean </span><span class="s1">gameOver</span><span class="s0">;   </span><span class="s3">// Indicates whether the game is over</span><span class="s1"> 
+    agent p1</span><span class="s0">, </span><span class="s1">p2</span><span class="s0">;</span><span class="s1"> 
+    GUI g</span><span class="s0">;</span><span class="s1"> 
+    ArrayList&lt;Integer&gt; howPlayed = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+ 
+    Game(String gui</span><span class="s0">, </span><span class="s1">String player1</span><span class="s0">, </span><span class="s1">String player2){ 
+        initGame(gui</span><span class="s0">,</span><span class="s1">player1</span><span class="s0">,</span><span class="s1">player2)</span><span class="s0">;</span><span class="s1"> 
+        playGame()</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Initializes and plays the game</span><span class="s1"> 
+ 
+    </span><span class="s0">void </span><span class="s1">initGame(String gui</span><span class="s0">, </span><span class="s1">String player1</span><span class="s0">, </span><span class="s1">String player2){ 
+        board = </span><span class="s0">new </span><span class="s1">Board()</span><span class="s0">;</span><span class="s1"> 
+        winner = </span><span class="s2">0</span><span class="s0">;</span><span class="s1"> 
+        gameOver = </span><span class="s0">false;</span><span class="s1"> 
+        g = guiInitializer(gui)</span><span class="s0">;</span><span class="s1"> 
+        p1 = agentInitializer(player1)</span><span class="s0">;</span><span class="s1"> 
+        p2 = agentInitializer(player2)</span><span class="s0">;</span><span class="s1"> 
+        tmpVariables.clicked=</span><span class="s0">false;</span><span class="s1"> 
+        tmpVariables.actionTaken=-</span><span class="s2">1</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    GUI guiInitializer(String gui){ 
+        </span><span class="s0">if</span><span class="s1">(gui==</span><span class="s4">&quot;Graphics&quot;</span><span class="s1">){</span><span class="s0">return new </span><span class="s1">Graphics()</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">if</span><span class="s1">(gui==</span><span class="s4">&quot;NoGraphics&quot;</span><span class="s1">){</span><span class="s0">return new </span><span class="s1">NoGUI()</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">else</span><span class="s1">{</span><span class="s0">return new </span><span class="s1">console()</span><span class="s0">;</span><span class="s1">} 
+    } 
+ 
+    agent agentInitializer(String p){ 
+        </span><span class="s0">if</span><span class="s1">(p==</span><span class="s4">&quot;Random&quot;</span><span class="s1">){</span><span class="s0">return new </span><span class="s1">randomPlayer()</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">else if</span><span class="s1">(p==</span><span class="s4">&quot;Console&quot;</span><span class="s1">){</span><span class="s0">return new </span><span class="s1">consolePlayer()</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">else if</span><span class="s1">(p==</span><span class="s4">&quot;PureMCTS&quot;</span><span class="s1">){</span><span class="s0">return new </span><span class="s1">pureMCTSPlayer()</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">else if</span><span class="s1">(p==</span><span class="s4">&quot;FastFinishMCTS&quot;</span><span class="s1">){</span><span class="s0">return new </span><span class="s1">fastFinishMCTSPlayer()</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">else</span><span class="s1">{</span><span class="s0">return new </span><span class="s1">graphicsPlayer()</span><span class="s0">;</span><span class="s1">} 
+    } 
+ 
+    </span><span class="s0">void </span><span class="s1">playGame(){ 
+        g.showChange(board)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">while</span><span class="s1">(board.whoWon()==</span><span class="s2">0</span><span class="s1">){ 
+            </span><span class="s0">int </span><span class="s1">action = currentPlayer().getAction(board)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">while</span><span class="s1">(!board.isPosMove(action)){ 
+                System.out.print(</span><span class="s4">&quot;Stuck! Action: &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                System.out.println(action)</span><span class="s0">;</span><span class="s1"> 
+                action = currentPlayer().getAction(board)</span><span class="s0">;</span><span class="s1"> 
+            } 
+            oneTurn(action)</span><span class="s0">;</span><span class="s1"> 
+            g.showChange(board)</span><span class="s0">;</span><span class="s1"> 
+        } 
+        g.gameOverMessage(board)</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Plays the game. Run in Game()</span><span class="s1"> 
+ 
+    agent currentPlayer(){ 
+        </span><span class="s0">int </span><span class="s1">pl = board.getPlayer()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">if</span><span class="s1">(pl==</span><span class="s2">1</span><span class="s1">){</span><span class="s0">return </span><span class="s1">p1</span><span class="s0">;</span><span class="s1">} 
+        </span><span class="s0">else</span><span class="s1">{</span><span class="s0">return </span><span class="s1">p2</span><span class="s0">;</span><span class="s1">} 
+    }   </span><span class="s3">// Returns the current agent playing</span><span class="s1"> 
+ 
+    </span><span class="s0">void </span><span class="s1">takeAction(</span><span class="s0">int </span><span class="s1">action){ 
+        board = board.createSuccessorBoard(action)</span><span class="s0">;</span><span class="s1"> 
+    }   </span><span class="s3">// Takes an action</span><span class="s1"> 
+ 
+    </span><span class="s0">void </span><span class="s1">oneTurn(</span><span class="s0">int </span><span class="s1">action){ 
+        takeAction(action)</span><span class="s0">;</span><span class="s1"> 
+        winner = board.whoWon()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">if</span><span class="s1">(winner!=</span><span class="s2">0</span><span class="s1">) {gameOver=</span><span class="s0">true;</span><span class="s1">} 
+        howPlayed.add(action)</span><span class="s0">;</span><span class="s1"> 
+</span><span class="s3">//        System.out.println();</span><span class="s1"> 
+</span><span class="s3">//        System.out.println(board.getPlayer());</span><span class="s1"> 
+</span><span class="s3">//        System.out.print(&quot;Action: &quot;);</span><span class="s1"> 
+</span><span class="s3">//        System.out.println(action);</span><span class="s1"> 
+    }   </span><span class="s3">// Takes an action, check if game is over</span><span class="s1"> 
+ 
+    </span><span class="s0">void </span><span class="s1">offScreen(){ 
+ 
+    } 
+ 
+}   </span><span class="s3">// The main class for playing the game</span><span class="s1"> 
+ 
+</span><span class="s0">abstract class </span><span class="s1">agent{ 
+    </span><span class="s0">abstract int </span><span class="s1">getAction(Board board)</span><span class="s0">;</span><span class="s1"> 
+} 
+ 
+</span><span class="s0">class </span><span class="s1">consolePlayer </span><span class="s0">extends </span><span class="s1">agent{ 
+    </span><span class="s0">int </span><span class="s1">getAction(Board board){ 
+        Scanner s = </span><span class="s0">new </span><span class="s1">Scanner(System.in)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">action = -</span><span class="s2">1</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">while</span><span class="s1">(action&lt;</span><span class="s2">0</span><span class="s1">||action&gt;</span><span class="s2">6</span><span class="s1">){ 
+            action = s.nextInt()</span><span class="s0">;</span><span class="s1"> 
+        } 
+        </span><span class="s0">return </span><span class="s1">action</span><span class="s0">;</span><span class="s1"> 
+    } 
+}      </span><span class="s3">// Gets the next action by typing in an integer from 0~6</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">randomPlayer </span><span class="s0">extends </span><span class="s1">agent{ 
+    </span><span class="s0">int </span><span class="s1">getAction(Board board){ 
+        </span><span class="s0">return </span><span class="s1">Util.randomPick(board.posActions())</span><span class="s0">;</span><span class="s1"> 
+    } 
+}       </span><span class="s3">// Gets the next action randomly</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">graphicsPlayer </span><span class="s0">extends </span><span class="s1">agent{ 
+ 
+    </span><span class="s0">int </span><span class="s1">getAction(Board board) { 
+        </span><span class="s0">while</span><span class="s1">(!tmpVariables.clicked) { 
+            </span><span class="s3">//System.out.print(&quot;  &quot;);</span><span class="s1"> 
+            timeConsumer()</span><span class="s0">;</span><span class="s1"> 
+        } 
+        </span><span class="s0">int </span><span class="s1">action = tmpVariables.actionTaken</span><span class="s0">;</span><span class="s1"> 
+        tmpVariables.clicked=</span><span class="s0">false;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">action</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">void </span><span class="s1">timeConsumer(){ 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;</span><span class="s2">1</span><span class="s0">; </span><span class="s1">i++) { 
+            System.out.print(</span><span class="s4">&quot;&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } 
+    } 
+}     </span><span class="s3">// Gets the next action by clicking on the interface</span><span class="s1"> 
+ 
+</span><span class="s0">class </span><span class="s1">pureMCTSPlayer </span><span class="s0">extends </span><span class="s1">agent{ 
+ 
+    </span><span class="s0">int </span><span class="s1">k = </span><span class="s2">100</span><span class="s0">;   </span><span class="s3">// # of trials per each child node</span><span class="s1"> 
+    </span><span class="s0">int </span><span class="s1">myPlayerNo</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s0">int </span><span class="s1">getAction(Board board){ 
+        myPlayerNo = board.getPlayer()</span><span class="s0">;</span><span class="s1"> 
+        ArrayList&lt;Integer&gt; childAction = board.posActions()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int</span><span class="s1">[] wins = </span><span class="s0">new int</span><span class="s1">[childAction.size()]</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;childAction.size()</span><span class="s0">; </span><span class="s1">i++){ 
+            Board sucBoard = board.createSuccessorBoard(childAction.get(i))</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;k</span><span class="s0">; </span><span class="s1">j++){ 
+                wins[i] += didWin(sucBoard)</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+        </span><span class="s0">int </span><span class="s1">maxWins = </span><span class="s2">0</span><span class="s0">;</span><span class="s1"> 
+        ArrayList&lt;Integer&gt; maxArg = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;childAction.size()</span><span class="s0">; </span><span class="s1">i++){ 
+            </span><span class="s0">if</span><span class="s1">(wins[i]&gt;maxWins){ 
+                maxWins = wins[i]</span><span class="s0">;</span><span class="s1"> 
+                maxArg = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+                maxArg.add(childAction.get(i))</span><span class="s0">;</span><span class="s1"> 
+            } 
+            </span><span class="s0">else if</span><span class="s1">(wins[i]==maxWins){ 
+                maxArg.add(childAction.get(i))</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+        </span><span class="s0">return </span><span class="s1">Util.randomPick(maxArg)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">int </span><span class="s1">didWin(Board sucBoard){ 
+        </span><span class="s0">if</span><span class="s1">(sucBoard.whoWon()!=</span><span class="s2">0</span><span class="s1">){ 
+            </span><span class="s0">if</span><span class="s1">(sucBoard.whoWon()==myPlayerNo){</span><span class="s0">return </span><span class="s2">1</span><span class="s0">;</span><span class="s1">} 
+            </span><span class="s0">else</span><span class="s1">{</span><span class="s0">return </span><span class="s2">0</span><span class="s0">;</span><span class="s1">} 
+        } 
+        </span><span class="s0">int </span><span class="s1">randomAction = Util.randomPick(sucBoard.posActions())</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">didWin(sucBoard.createSuccessorBoard(randomAction))</span><span class="s0">;</span><span class="s1"> 
+    } 
+} 
+ 
+</span><span class="s0">class </span><span class="s1">fastFinishMCTSPlayer </span><span class="s0">extends </span><span class="s1">agent{ 
+ 
+    </span><span class="s0">int </span><span class="s1">k = </span><span class="s2">100</span><span class="s0">;   </span><span class="s3">// # of trials per each child node</span><span class="s1"> 
+    </span><span class="s0">int </span><span class="s1">myPlayerNo</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s0">int </span><span class="s1">getAction(Board board){ 
+        myPlayerNo = board.getPlayer()</span><span class="s0">;</span><span class="s1"> 
+        ArrayList&lt;Integer&gt; childAction = board.posActions()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">float</span><span class="s1">[] wins = </span><span class="s0">new float</span><span class="s1">[childAction.size()]</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;childAction.size()</span><span class="s0">; </span><span class="s1">i++){ 
+            Board sucBoard = board.createSuccessorBoard(childAction.get(i))</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;k</span><span class="s0">; </span><span class="s1">j++){ 
+                wins[i] += didWin(sucBoard</span><span class="s0">,</span><span class="s2">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+        </span><span class="s0">float </span><span class="s1">maxWins = </span><span class="s2">0</span><span class="s0">;</span><span class="s1"> 
+        ArrayList&lt;Integer&gt; maxArg = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">i=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">i&lt;childAction.size()</span><span class="s0">; </span><span class="s1">i++){ 
+            </span><span class="s0">if</span><span class="s1">(wins[i]&gt;maxWins){ 
+                maxWins = wins[i]</span><span class="s0">;</span><span class="s1"> 
+                maxArg = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;()</span><span class="s0">;</span><span class="s1"> 
+                maxArg.add(childAction.get(i))</span><span class="s0">;</span><span class="s1"> 
+            } 
+            </span><span class="s0">else if</span><span class="s1">(wins[i]==maxWins){ 
+                maxArg.add(childAction.get(i))</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+        </span><span class="s0">return </span><span class="s1">Util.randomPick(maxArg)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">float </span><span class="s1">didWin(Board sucBoard</span><span class="s0">, int </span><span class="s1">depth){ 
+        </span><span class="s0">if</span><span class="s1">(sucBoard.whoWon()!=</span><span class="s2">0</span><span class="s1">){ 
+            </span><span class="s0">if</span><span class="s1">(sucBoard.whoWon()==myPlayerNo){ 
+                </span><span class="s0">float </span><span class="s1">score = </span><span class="s2">1</span><span class="s1">+(</span><span class="s0">float</span><span class="s1">)</span><span class="s2">1</span><span class="s1">/depth</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">return </span><span class="s1">score</span><span class="s0">;</span><span class="s1"> 
+            } 
+            </span><span class="s0">else</span><span class="s1">{</span><span class="s0">return </span><span class="s2">0</span><span class="s0">;</span><span class="s1">} 
+        } 
+        </span><span class="s0">int </span><span class="s1">randomAction = Util.randomPick(sucBoard.posActions())</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">didWin(sucBoard.createSuccessorBoard(randomAction)</span><span class="s0">,</span><span class="s1">depth+</span><span class="s2">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+    } 
+} 
+ 
+</span><span class="s0">public class </span><span class="s1">ConnectFour { 
+ 
+    ConnectFour(String gui</span><span class="s0">, </span><span class="s1">String p1</span><span class="s0">, </span><span class="s1">String p2) { 
+        </span><span class="s0">new </span><span class="s1">Game(gui</span><span class="s0">,</span><span class="s1">p1</span><span class="s0">,</span><span class="s1">p2)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    ConnectFour(</span><span class="s0">int </span><span class="s1">i</span><span class="s0">, </span><span class="s1">String gui</span><span class="s0">, </span><span class="s1">String p1</span><span class="s0">, </span><span class="s1">String p2) { 
+        </span><span class="s0">int </span><span class="s1">white = </span><span class="s2">0</span><span class="s0">;  </span><span class="s3">// # of white wins</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">black = </span><span class="s2">0</span><span class="s0">;  </span><span class="s3">// # of black wins</span><span class="s1"> 
+        </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">j=</span><span class="s2">0</span><span class="s0">; </span><span class="s1">j&lt;i</span><span class="s0">; </span><span class="s1">j++){ 
+            Game g = </span><span class="s0">new </span><span class="s1">Game(gui</span><span class="s0">,</span><span class="s1">p1</span><span class="s0">,</span><span class="s1">p2)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if</span><span class="s1">(g.board.whoWon()==</span><span class="s2">1</span><span class="s1">){black++</span><span class="s0">;</span><span class="s1">} 
+            </span><span class="s0">if</span><span class="s1">(g.board.whoWon()==</span><span class="s2">2</span><span class="s1">){white++</span><span class="s0">;</span><span class="s1">} 
+            </span><span class="s0">if</span><span class="s1">(j%</span><span class="s2">10</span><span class="s1">==</span><span class="s2">0</span><span class="s1">){ 
+                System.out.print(</span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">Iterations: &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                System.out.print(j)</span><span class="s0">;</span><span class="s1"> 
+            } 
+        } 
+        System.out.print(</span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">Black wins: &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        System.out.println(black)</span><span class="s0">;</span><span class="s1"> 
+        System.out.print(</span><span class="s4">&quot;White wins: &quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        System.out.println(white)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">public static void </span><span class="s1">main(String[] args) { 
+        </span><span class="s0">new </span><span class="s1">ConnectFour(</span><span class="s2">1</span><span class="s0">,</span><span class="s4">&quot;Graphics&quot;</span><span class="s0">,</span><span class="s4">&quot;FastFinishMCTS&quot;</span><span class="s0">,</span><span class="s4">&quot;Graphics&quot;</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+    } 
+}   </span><span class="s3">// The class with main method</span><span class="s1"> 
+ 
+</span></pre>
+</body>
+</html>
