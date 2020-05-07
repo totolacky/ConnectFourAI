@@ -1,20 +1,29 @@
-# ConnectFourAI
-A connect-four game with AI implemented with MCTS algorithm
+# About
+A connect-four game implemented with JAVA awt and swing. The AI is implemented using simple MCTS algorithm
 
-몬테카를로 트리 탐색 알고리즘을 이용해 구현한 4목 게임
+JAVA awt와 swing을 이용해 구현한 4목 게임입니다. 게임 AI는 몬테카를로 트리 탐색 알고리즘을 이용해 구현했습니다.
 
-## What is it?
-4목 게임은 ‘Connect-four’라고도 불리는 게임으로, 두 명의 플레이어가 세로로 놓인 7X6 게임판에 바둑돌을 차례대로 떨어뜨려 쌓으며, 가로/세로/대각선으로 먼저 4개의 돌을 연속되게 만드는 사람이 이기는 게임입니다. UC Berlekey에서 CS188 Introduction to Artificial Intelligence 과목을 청강하며 배운 지식을 바탕으로 4목 게임과 그 AI를 구현하였으며, AI 알고리즘을 목적에 맞게 개선한 점, 그리고 알고리즘을 비교/실험할 수 있도록 프로그램을 설계한 점 등에서 활동의 독창성을 찾아볼 수 있습니다.
+## AI algorithm
+The basic algorithm is simplified MCTS. The pureMCTS agent makes a decision by simulating 100 random actions repeatedly until the end of the game, and taking the move that made the best average outputs (1 for a win, 0 for a lose). There is also a FastFinishMCTS agent implemented, where the agent gets a larger reward for faster win. This agent finishes the game 2~3 moves earlier than the pureMCTS agent does, on average.
 
-호텔에서 친구들과 4목 게임을 하다가 호기심이 생겨 진행하게 된 개인 프로젝트입니다. JAVA swing을 이용해 게임 UI의 디자인부터 로직, 입력 방식, 그리고 AI까지 모두 구현한 프로젝트입니다. 랜덤하게 움직이는 random player, MCTS 알고리즘을 이용하는 pure MCTS player, 그리고 ‘독창성’ 항목에서 언급된 개량된 MCTS 알고리즘을 이용하는 fast finish MCTS player 등의 AI를 구현하였고, 이들끼리 대결을 시킴으로써 각 AI의 성능을 분석했습니다. 구현한 AI는 일반인과 대등하게 게임을 할 수 있는 정도의 실력을 갖추었습니다.
+AI는 단순화된 MCTS(몬테카를로 트리 탐색) 알고리즘을 이용해 구현했습니다. PureMCTS agent는 가능한 수마다 100개의 게임을 무작위하게 시뮬레이션하고, 그중 가장 승률이 높은 수를 선택합니다 (각 시뮬레이션에서 이기면 1점, 지면 0점을 더합니다). FastFinishMCTS agent에서는 시뮬레이션을 빨리 끝낼 때 추가적인 점수를 주며, 이에 따라 PureMCTS agent보다 평균적으로 2~3차례 일찍 게임을 끝마칩니다.
 
-## Algorithm
-Monte Carlo tree search(MCTS)는 AlphaGo의 개발에 사용되었던 알고리즘으로, 모든 경우의 수를 탐색하는 대신 여러 움직임을 무작위로 탐색한 후 결정을 내리는 방식입니다. 4,000,000,000,000가지가 넘는 돌의 위치 조합을 가지는 4목 게임의 AI를 효율적으로 구현하기 위해 MCTS 알고리즘을 선택했으며, 이를 통해 AI의 연산 시간을 효과적으로 단축할 수 있었습니다.
+## How to use
+```java
+public static void main(String[] args) {
+    new ConnectFour(100,"NoGraphics","PureMCTS","FastFinishMCTS");
+}
+```
+You can run the program using the ConnectFour constructor in the main function. The role of the arguments are as follows.
+> i: The number of games (or simulations) you want to play. You may omit this argument.
 
-알고리즘을 구현하고 게임을 진행하다 보니, AI가 빠르게 승리할 수 있는 상황에서도 불필요한 수를 두며 게임을 질질 끄는 현상을 발견했습니다. 이러한 상황을 방지하기 위해, 기존의 MCTS (PureMCTS)에서 게임이 오래 걸리는 것에 대한 페널티를 부여한 개량 알고리즘 (FastFinishMCTS)을 도입한 결과, 게임이 평균적으로 더 빠른 시간 안에 끝난다는 것을 확인할 수 있었습니다.
+> Graphic: Determines the GUI you want to use. "NoGraphics" will not show anything. "Console" will display the game on console. "Graphics" will display the game using awt and swing.
 
-여러 알고리즘의 성능을 효과적으로 비교하기 위해, 에서 볼 수 있듯 게임 실행 코드를 ‘ConnectFour’ 생성자로 감싸 여러 매개변수를 전달하는 방식으로 구성했습니다. 이를 통해 원하는 대로 게임 화면 표시 여부와 반복 횟수를 설정하고, p1과 p2를 모두 AI로 설정해 대결시킴으로써 구현한 여러 AI 알고리즘의 효율을 쉽게 비교할 수 있었습니다.
+> P1/P2: Determines the player that plays the game. "Console" will let you make moves using the console. "Graphics" will let you make moves by clicking buttons on the awt/swing GUI. You can also choose an AI as the player. "Random" will make the AI play the game randomly. "PureMCTS" will make the AI play the game using the PureMCTS algorithm. "FastFinishMCTS" will make the AI play the game using the FastFinishMCTS algorithm.
 
-## Possible Improvement
-확장성에 무게를 두고 진행한 프로젝트인 만큼, 추가적인 인공지능 알고리즘을 구현하고 그 성능을 비교해 보며 알고리즘의 효율성을 분석하는 데 사용될 수 있습니다. 현재는 각 차례마다 처음부터 여러 행동을 취해봄으로써 유리한 움직임을 결정하는 방식으로 AI가 구현되어 있다면, 이후에는 강화학습 알고리즘을 도입하여 AI가 이전 게임에서의 정보를 기억하고 활용하게 하여 AI의 실력을 한층 더 높일 수 있을 것입니다.
-또한 4목 게임은 수학적으로 필승법이 밝혀져 있는 게임인 만큼, AI가 그 필승법을 찾아낼 수 있는지 탐구해볼 수도 있을 것으로 기대합니다.
+Main 함수 안에 있는 ConnectFour 생성자를 이용하여 게임을 실행할 수 있습니다. 전달되는 매개변수는 다음과 같습니다.
+> i: 게임(또는 시뮬레이션)을 실행할 횟수를 지정합니다. 원한다면 생략할 수 있는 매개변수입니다.
+
+> Graphic: 게임 그래픽을 선택할 수 있습니다. "NoGraphics"를 선택하면 그래픽이 보이지 않습니다. "Console"을 선택하면 콘솔 창에 게임 화면이 나타납니다. "Graphics"를 선택하면 awt/swing을 이용해 구현된 GUI가 보여집니다.
+
+> P1/P2: 입력 방식, 또는 AI 종류를 선택합니다. "Console"을 선택하면 콘솔 창에서 입력할 수 있습니다. "Graphics"를 선택하면 awt/swing GUI에 있는 버튼을 클릭해 입력할 수 있습니다. "Random"을 선택하면 무작위로 행동을 취하는 Random agent가 게임을 플레이합니다. "PureMCTS"를 선택하면 PureMCTS 알고리즘을 이용하는 AI가 게임을 플레이합니다. "FastFinishMCTS"를 선택하면 FastFinishMCTS 알고리즘을 이용하는 Ai가 게임을 플레이합니다.
