@@ -3,6 +3,8 @@ A connect-four game implemented with JAVA awt and swing. The AI is implemented u
 
 JAVA awt와 swing을 이용해 구현한 4목 게임입니다. 게임 AI는 몬테카를로 트리 탐색 알고리즘을 이용해 구현했습니다.
 
+![pic1-1](./docs/board.png)
+
 ## AI algorithm
 The basic algorithm is simplified MCTS. The pureMCTS agent makes a decision by simulating 100 random actions repeatedly until the end of the game, and taking the move that made the best average outputs (1 for a win, 0 for a lose). There is also a FastFinishMCTS agent implemented, where the agent gets a larger reward for faster win. This agent finishes the game 2~3 moves earlier than the pureMCTS agent does, on average.
 
